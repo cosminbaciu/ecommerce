@@ -1,167 +1,190 @@
-# Spring Boot Shopping Cart Web App
+# Configurare mediu de lucru
 
-## About
 
-This is a demo project for practicing Spring + Thymeleaf. The idea was to build some basic shopping cart web app.
+### Tools
 
-It was made using **Spring Boot**, **Spring Security**, **Thymeleaf**, **Spring Data JPA**, **Spring Data REST and Docker**. 
-Database is in memory **H2**.
+1. Maven 3.0+ 
+2. Un IDE (noi am folosit IntelliJ)
+3. JDK 1.8+
 
-There is a login and registration functionality included.
+### Instalare JDK
 
-Users can shop for products. Each user has his own shopping cart (session functionality).
-Checkout is transactional.
 
-## Configuration
-
-### Configuration Files
-
-Folder **src/resources/** contains config files for **shopping-cart** Spring Boot application.
-
-* **src/resources/application.properties** - main configuration file. Here it is possible to change admin username/password,
-as well as change the port number.
-
-## How to run
-
-There are several ways to run the application. You can run it from the command line with included Maven Wrapper, Maven or Docker. 
-
-Once the app starts, go to the web browser and visit `http://localhost:8070/home`
-
-Admin username: **admin**
-
-Admin password: **admin**
-
-User username: **user**
-
-User password: **password**
-
-### Maven Wrapper
-
-#### Using the Maven Plugin
-
-Go to the root folder of the application and type:
-```bash
-$ chmod +x scripts/mvnw
-$ scripts/mvnw spring-boot:run
+```
+$ sudo apt update
 ```
 
-#### Using Executable Jar
+Verificam daca java este deja instalat:
 
-Or you can build the JAR file with 
-```bash
-$ scripts/mvnw clean package
-``` 
-
-Then you can run the JAR file:
-```bash
-$ java -jar target/shopping-cart-0.0.1-SNAPSHOT.jar
 ```
-
-### Maven
-
-Open a terminal and run the following commands to ensure that you have valid versions of Java and Maven installed:
-
-```bash
 $ java -version
-java version "1.8.0_102"
-Java(TM) SE Runtime Environment (build 1.8.0_102-b14)
-Java HotSpot(TM) 64-Bit Server VM (build 25.102-b14, mixed mode)
 ```
 
-```bash
-$ mvn -v
-Apache Maven 3.3.9 (bb52d8502b132ec0a5a3f4c09453c07478323dc5; 2015-11-10T16:41:47+00:00)
-Maven home: /usr/local/Cellar/maven/3.3.9/libexec
-Java version: 1.8.0_102, vendor: Oracle Corporation
+Daca rezultatul este negativ, instalam JRE
+
+```
+$ sudo apt install openjdk-8-jre
+```
+si verificam iar daca este s-a instalat:
+
+```
+$ java -version
 ```
 
-#### Using the Maven Plugin
+Daca vedem urmatorul output:
 
-The Spring Boot Maven plugin includes a run goal that can be used to quickly compile and run your application. 
-Applications run in an exploded form, as they do in your IDE. 
-The following example shows a typical Maven command to run a Spring Boot application:
- 
-```bash
+```
+Output
+openjdk version "1.8.0_162"
+OpenJDK Runtime Environment (build 1.8.0_162-8u162-b12-1-b12)
+OpenJDK 64-Bit Server VM (build 25.162-b12, mixed mode)
+```
+     
+Continuam cu instalarea JDK-ului:
+
+```
+$ sudo apt install openjdk-8-jdk
+```
+
+Cele mai multe programe java utilizeaza variabila de mediu JAVA_HOME astfel incat trebuie setata. 
+
+
+```
+$ sudo update-alternatives --config java
+```
+
+Mai intai trebuie sa vedem unde este instalat. In tabel cautam /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java:
+
+---
+Deschidem fisierul /etc/environment 
+
+
+```
+$ sudo nano /etc/environment
+```
+
+La sfarsitul fisierului inlocuim calea cu cea determinata mai sus:
+
+```
+JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64/bin/"
+```
+
+Reincarcam fisierul:
+```
+$ source /etc/environment
+```
+
+Verificam daca modificarea a avut loc
+```
+$ echo $JAVA_HOME
+```
+
+Outputul trebuie sa coincida cu modificarea facuta mai sus.
+```
+Output
+/usr/lib/jvm/java-11-openjdk-amd64/bin/
+```
+
+### Instalare Maven
+
+```
+$ sudo apt install maven
+```
+
+``` 
+$ mvn -version
+```
+
+
+### Instalare PosttgreSQL
+
+```
+$ sudo apt-get install postgresql postgresql-contrib
+```
+
+Accesare consola psql:
+
+```
+$  sudo -u postgres psql postgres
+```
+
+Cream user pentru a accesa aplicatia:
+
+```
+postgres=#  create user cosmin with password;
+```
+
+Cream baza de date:
+
+```
+postgres=# create database utech;
+```
+
+Acordam drepturi userului creat anterior:
+```
+postgres=# grant all privileges on database utech to cosmin;
+```
+
+## Rulare aplicatie
+
+Aplicatia este construita in SpringBoot si rulata cu ajutorul Maven.
+
+Pentru a rula aplicatia, intai trebuie sa instalam dependintele
+
+Intram in proiect, in /utech si rulam 
+
+```
+$ mvn install
+```
+
+```
 $ mvn spring-boot:run
-``` 
-
-#### Using Executable Jar
-
-To create an executable jar run:
-
-```bash
-$ mvn clean package
-``` 
-
-To run that application, use the java -jar command, as follows:
-
-```bash
-$ java -jar target/shopping-cart-0.0.1-SNAPSHOT.jar
 ```
 
-To exit the application, press **ctrl-c**.
+Cand vedem in consola de run:
+```
+Started UtechApplication in 6.516 seconds (JVM running for 6.944)
+```
+mergem in browser si accesam http://localhost:5000/api
 
-### Docker
 
-It is possible to run **shopping-cart** using Docker:
+## Navigare
 
-Build Docker image:
-```bash
-$ mvn clean package
-$ docker build -t shopping-cart:dev -f docker/Dockerfile .
+In momentul in care accesam http://localhost:5000/api in browser, va aparea formularul de log in. 
+Pentru a crea un user, apelam in Postman 
+
+```POST:  http://localhost:5000/api/register/register``` cu body-ul prezentat mai sus. 
+Daca raspunsul este favorabil, ne vom putea loga cu userul creat.
+
+1. Pentru a vizualiza si a utiliza mai bine aplicatia, avand doar partea de back-end, am folosit un tool numit Swagger. 
+Acesta poate fi accesat, in sesiunea userului curent, la adresa ```http://localhost:5000/api/swagger-ui.html```
+
+Acolo regasim fiecare endpoint cu o interfata mai facila pentru utilizator, cu sugestii de body-uri si autocomplete cu date mock pentru request-uri.
+
+2. O alternativa este apelarea endpoint-urilor direct din terminal, cu ```curl```, cu mentiunea ca trebuie sa adaugam autorizare.
+
+Exemplu: 
+```
+curl --user cosmin:Fepece1905 -X GET --header 'Accept: application/json' 'http://localhost:8070/getProducts'
 ```
 
-Run Docker container:
-```bash
-$ docker run --rm -i -p 8070:8070 \
-      --name shopping-cart \
-      shopping-cart:dev
+3. Call-uri in aplicatie se pot face si cu ajutorul lui Postman.
+
+
+
+## Front-end
+
+Pentru partea de front-end am folosit limbajul React. 
+
+Am structurat proiectul in pachetele common, components, user si util, pentru o mai buna vizualizare a fisierelor
+
+Proiectul porneste ruland comanda
+
+```
+npm start
 ```
 
-##### Helper script
+Pentru usurarea dezvoltarii componentei de UI, am folosit biblioteca Material UI care implementeaza Google Material Design.
 
-It is possible to run all of the above with helper script:
-
-```bash
-$ chmod +x scripts/run_docker.sh
-$ scripts/run_docker.sh
-```
-
-## Docker 
-
-Folder **docker** contains:
-
-* **docker/shopping-cart/Dockerfile** - Docker build file for executing shopping-cart Docker image. 
-Instructions to build artifacts, copy build artifacts to docker image and then run app on proper port with proper configuration file.
-
-## Util Scripts
-
-* **scripts/run_docker.sh.sh** - util script for running shopping-cart Docker container using **docker/Dockerfile**
-
-## Tests
-
-Tests can be run by executing following command from the root of the project:
-
-```bash
-$ mvn test
-```
-
-## Helper Tools
-
-### HAL REST Browser
-
-Go to the web browser and visit `http://localhost:8070/`
-
-You will need to be authenticated to be able to see this page.
-
-### H2 Database web interface
-
-Go to the web browser and visit `http://localhost:8070/h2-console`
-
-In field **JDBC URL** put 
-```
-jdbc:h2:mem:shopping_cart_db
-```
-
-In `/src/main/resources/application.properties` file it is possible to change both
-web interface url path, as well as the datasource url.
+``````
+localhost:3000
